@@ -1,13 +1,12 @@
 use std::sync::Arc;
 
-use crate::renderer::{Renderer, core::Core};
+use crate::renderer::{core::Core, render};
 use winit::{application::ApplicationHandler, window::Window};
 
 #[derive(Default)]
 struct App {
     window: Option<Arc<Window>>,
     core: Option<Core>,
-    renderer: Renderer,
 }
 
 impl ApplicationHandler for App {
@@ -45,7 +44,7 @@ impl ApplicationHandler for App {
                 event_loop.exit();
             }
             winit::event::WindowEvent::RedrawRequested => {
-                match self.renderer.render(core) {
+                match render(core) {
                     Ok(_) => {}
                     Err(e) => {
                         log::error!("{e}");
