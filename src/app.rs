@@ -1,13 +1,18 @@
+use std::sync::Arc;
+
+use crate::renderer::{Renderer, core::Core};
 use winit::{application::ApplicationHandler, window::Window};
 
 #[derive(Default)]
 struct App {
-    window: Option<Window>,
+    window: Option<Arc<Window>>,
+    core: Option<Core>,
+    renderer: Renderer,
 }
 
 impl ApplicationHandler for App {
     fn resumed(&mut self, event_loop: &winit::event_loop::ActiveEventLoop) {
-        self.window = Some(
+        let window = Arc::new(
             event_loop
                 .create_window(
                     Window::default_attributes()
@@ -16,6 +21,11 @@ impl ApplicationHandler for App {
                 )
                 .unwrap(),
         );
+        self.window = Some(window.clone());
+
+        let mut core = pollster::block_on(Core::new(window.clone())).unwrap();
+        core.resize(800, 600);
+        self.core = Some(core);
     }
 
     fn window_event(
@@ -24,12 +34,24 @@ impl ApplicationHandler for App {
         window_id: winit::window::WindowId,
         event: winit::event::WindowEvent,
     ) {
+        let core = match &mut self.core {
+            Some(core) => core,
+            None => return,
+        };
+
         match event {
             winit::event::WindowEvent::CloseRequested => {
                 println!("closing app...");
                 event_loop.exit();
             }
             winit::event::WindowEvent::RedrawRequested => {
+                match self.renderer.render(core) {
+                    Ok(_) => {}
+                    Err(e) => {
+                        log::error!("{e}");
+                        event_loop.exit();
+                    }
+                }
                 // rendering code would go here
             }
             winit::event::WindowEvent::KeyboardInput { .. } => {
@@ -38,6 +60,10 @@ impl ApplicationHandler for App {
 
             winit::event::WindowEvent::MouseInput { .. } => {
                 // mouse input handling code would go here
+            }
+
+            winit::event::WindowEvent::Resized(size) => {
+                core.resize(size.width, size.height);
             }
             _ => {}
         }
