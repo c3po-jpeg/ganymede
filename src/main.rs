@@ -1,5 +1,5 @@
 pub mod app;
-pub mod renderer;
+pub mod core;
 
 fn main() -> anyhow::Result<()> {
     app::run()?;
