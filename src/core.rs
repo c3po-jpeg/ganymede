@@ -165,7 +165,10 @@ impl Core {
         &self.config
     }
 
-    pub fn render(&mut self) -> anyhow::Result<()> {
+    pub fn render<F>(&mut self, f: F) -> anyhow::Result<()>
+    where
+        F: FnOnce(&mut wgpu::RenderPass<'_>) -> anyhow::Result<()>,
+    {
         self.window.request_redraw();
 
         if !self.is_surface_configured {
@@ -225,8 +228,9 @@ impl Core {
                 multiview_mask: None,
             });
 
-            render_pass.set_pipeline(&self.render_pipeline);
-            render_pass.draw(0..3, 0..1);
+            //render_pass.set_pipeline(&self.render_pipeline);
+            //render_pass.draw(0..3, 0..1);
+            f(&mut render_pass)?;
         }
 
         self.queue.submit(std::iter::once(encoder.finish()));
