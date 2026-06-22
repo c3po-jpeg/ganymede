@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 anyhow = "1.0.102"
+bytemuck = "1.25.0"
 egui = "0.34.3"
 egui-winit = "0.34.3"
 log = "0.4.33"

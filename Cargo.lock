@@ -734,6 +734,7 @@ name = "ganymede"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "bytemuck",
  "egui",
  "egui-winit",
  "log",

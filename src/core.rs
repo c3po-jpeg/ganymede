@@ -1,7 +1,8 @@
 use std::sync::Arc;
 
 use anyhow::Ok;
-use wgpu;
+
+use super::vertex::Vertex;
 
 pub struct Core {
     surface: wgpu::Surface<'static>,
@@ -89,7 +90,7 @@ impl Core {
             vertex: wgpu::VertexState {
                 module: &shader,
                 entry_point: Some("vs_main"),
-                buffers: &[],
+                buffers: &[Vertex::desc()],
                 compilation_options: wgpu::PipelineCompilationOptions::default(),
             },
             primitive: wgpu::PrimitiveState {
@@ -224,7 +225,7 @@ impl Core {
                 multiview_mask: None,
             });
 
-            render_pass.set_pipeline(&self.render_pipeline); 
+            render_pass.set_pipeline(&self.render_pipeline);
             render_pass.draw(0..3, 0..1);
         }
 

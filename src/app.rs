@@ -11,19 +11,21 @@ struct App {
 
 impl ApplicationHandler for App {
     fn resumed(&mut self, event_loop: &winit::event_loop::ActiveEventLoop) {
+        let win_width = 800;
+        let win_height = 600;
         let window = Arc::new(
             event_loop
                 .create_window(
                     Window::default_attributes()
                         .with_title("ganymede")
-                        .with_inner_size(winit::dpi::PhysicalSize::new(800, 600)),
+                        .with_inner_size(winit::dpi::PhysicalSize::new(win_width, win_height)),
                 )
                 .unwrap(),
         );
         self.window = Some(window.clone());
 
         let mut core = pollster::block_on(Core::new(window.clone())).unwrap();
-        core.resize(800, 600);
+        core.resize(win_width, win_height);
         self.core = Some(core);
     }
 
