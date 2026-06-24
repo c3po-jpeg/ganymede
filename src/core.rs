@@ -213,12 +213,7 @@ impl Core {
                     resolve_target: None,
                     depth_slice: None,
                     ops: wgpu::Operations {
-                        load: wgpu::LoadOp::Clear(wgpu::Color {
-                            r: 0.1,
-                            g: 0.5,
-                            b: 0.1,
-                            a: 1.0,
-                        }),
+                        load: wgpu::LoadOp::Clear(wgpu::Color::BLACK),
                         store: wgpu::StoreOp::Store,
                     },
                 })],
@@ -228,8 +223,7 @@ impl Core {
                 multiview_mask: None,
             });
 
-            //render_pass.set_pipeline(&self.render_pipeline);
-            //render_pass.draw(0..3, 0..1);
+            render_pass.set_pipeline(&self.render_pipeline);
             f(&mut render_pass)?;
         }
 

@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::core::Core;
+use crate::{core::Core, scene::Scene};
 use winit::{application::ApplicationHandler, window::Window};
 
 #[derive(Default)]
@@ -46,7 +46,8 @@ impl ApplicationHandler for App {
                 event_loop.exit();
             }
             winit::event::WindowEvent::RedrawRequested => {
-                match core.render() {
+                let scene = Scene::new();
+                match core.render(|render_pass| scene.render(render_pass)) {
                     Ok(_) => {}
                     Err(e) => {
                         log::error!("{e}");
