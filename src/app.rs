@@ -1,12 +1,22 @@
 use std::sync::Arc;
 
-use crate::{core::Core, entity::Entity, geometry::Geometry, scene::Scene};
+use crate::{core::Core, scene::Scene};
 use winit::{application::ApplicationHandler, window::Window};
 
 #[derive(Default)]
 struct App {
     window: Option<Arc<Window>>,
     core: Option<Core>,
+    scene: Option<Scene>,
+}
+
+impl App {
+    pub fn new(scene: Scene) -> Self {
+        Self {
+            scene: Some(scene),
+            ..Default::default()
+        }
+    }
 }
 
 impl ApplicationHandler for App {
@@ -27,6 +37,12 @@ impl ApplicationHandler for App {
         let mut core = pollster::block_on(Core::new(window.clone())).unwrap();
         core.resize(win_width, win_height);
         self.core = Some(core);
+
+        if let Some(scene) = &mut self.scene {
+            scene.init(self.core.as_ref().unwrap().device());
+        } else {
+            println!("scene has not been set!");
+        }
     }
 
     fn window_event(
@@ -40,14 +56,18 @@ impl ApplicationHandler for App {
             None => return,
         };
 
+        let scene = match &mut self.scene {
+            Some(scene) => scene,
+            None => return,
+        };
+
         match event {
             winit::event::WindowEvent::CloseRequested => {
                 println!("closing app...");
                 event_loop.exit();
             }
             winit::event::WindowEvent::RedrawRequested => {
-                let mut scene = Scene::new();
-                scene.add_entity(Entity::new(core.device(), Geometry::triangle(None)));
+                //scene.add_entity(Entity::new(core.device(), Geometry::triangle(None)));
                 match core.render(|render_pass| scene.render(render_pass)) {
                     Ok(_) => {}
                     Err(e) => {
@@ -73,8 +93,9 @@ impl ApplicationHandler for App {
     }
 }
 
-pub fn run() -> anyhow::Result<()> {
+pub fn run(scene: Scene) -> anyhow::Result<()> {
+    let mut app = App::new(scene);
     let event_loop = winit::event_loop::EventLoop::new()?;
-    event_loop.run_app(&mut App::default())?;
+    event_loop.run_app(&mut app)?;
     Ok(())
 }

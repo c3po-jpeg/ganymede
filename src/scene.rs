@@ -11,6 +11,12 @@ impl Scene {
         }
     }
 
+    pub fn init(&mut self, device: &wgpu::Device) {
+        self.entities
+            .iter_mut()
+            .for_each(|entity| entity.init(device));
+    }
+
     pub fn add_entity(&mut self, entity: Entity) {
         self.entities.push(entity);
     }
