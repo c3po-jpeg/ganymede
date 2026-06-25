@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::{core::Core, scene::Scene};
+use crate::{core::Core, entity::Entity, geometry::Geometry, scene::Scene};
 use winit::{application::ApplicationHandler, window::Window};
 
 #[derive(Default)]
@@ -46,7 +46,8 @@ impl ApplicationHandler for App {
                 event_loop.exit();
             }
             winit::event::WindowEvent::RedrawRequested => {
-                let scene = Scene::new();
+                let mut scene = Scene::new();
+                scene.add_entity(Entity::new(core.device(), Geometry::triangle(None)));
                 match core.render(|render_pass| scene.render(render_pass)) {
                     Ok(_) => {}
                     Err(e) => {
@@ -73,10 +74,6 @@ impl ApplicationHandler for App {
 }
 
 pub fn run() -> anyhow::Result<()> {
-    #[cfg(target_os = "linux")]
-    unsafe {
-        std::env::set_var("WAYLAND_DISPLAY", "");
-    }
     let event_loop = winit::event_loop::EventLoop::new()?;
     event_loop.run_app(&mut App::default())?;
     Ok(())

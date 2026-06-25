@@ -9,11 +9,8 @@ pub struct Geometry {
 }
 
 impl Geometry {
-    pub fn new(vertices: Vec<Vertex>, indices: Vec<u32>) -> Self {
-        Self {
-            vertices,
-            indices: Some(indices),
-        }
+    pub fn new(vertices: Vec<Vertex>, indices: Option<Vec<u32>>) -> Self {
+        Self { vertices, indices }
     }
 
     pub fn vertex_count(&self) -> usize {
@@ -26,6 +23,15 @@ impl Geometry {
         } else {
             0
         }
+    }
+
+    pub fn triangle(color: Option<[f32; 3]>) -> Self {
+        let vertices = vec![
+            Vertex::new([-0.5, -0.5, 0.0], color.unwrap_or([1.0; 3])),
+            Vertex::new([0.5, -0.5, 0.0], color.unwrap_or([1.0, 0.0, 0.0])),
+            Vertex::new([0.0, 0.5, 0.0], color.unwrap_or([0.0, 1.0, 0.0])),
+        ];
+        Self::new(vertices, None)
     }
 }
 
