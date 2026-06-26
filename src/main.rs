@@ -1,12 +1,15 @@
-use crate::{entity::Entity, geometry::Geometry, scene::Scene};
+mod app;
+mod buffer;
+mod camera;
+mod core;
+mod entity;
+mod geometry;
+mod scene;
+mod vertex;
 
-pub mod app;
-pub mod buffer;
-pub mod core;
-pub mod entity;
-pub mod geometry;
-pub mod scene;
-pub mod vertex;
+use entity::Entity;
+use geometry::Geometry;
+use scene::Scene;
 
 fn main() -> anyhow::Result<()> {
     let mut scene = Scene::new();

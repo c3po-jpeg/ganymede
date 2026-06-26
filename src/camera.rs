@@ -2,7 +2,19 @@ use math::{
     mat4x4::Mat4x4, vec3::Vec3
 };
 
-use engine_core::ubo::CameraUbo;
+#[repr(C)]
+#[derive(Debug, Copy, Clone, bytemuck::Pod, bytemuck::Zeroable)]
+pub struct CameraUniform {
+    view: [[f32; 4]; 4],
+    proj: [[f32; 4]; 4],
+}
+
+impl CameraUniform {
+    pub fn new(view: [[f32; 4]; 4], proj: [[f32; 4]; 4]) -> Self {
+        Self { view, proj }
+    }
+}
+
 
 #[derive(Clone, Copy, PartialEq)]
 enum CameraMotion {
@@ -160,18 +172,13 @@ impl Camera {
         self.speed = speed;
     }
 
-    pub fn get_ubo(&self) -> CameraUbo {
+    pub fn get_ubo(&self) -> CameraUniform {
         let mut view = Mat4x4::look_at(self.pos, self.pos + self.front, self.up);
         view = Mat4x4::transpose(&view); // Transpose for column-major order
 
         let mut proj = Mat4x4::perspective(self.fov, self.aspect_ratio, self.near, self.far);
-        proj.data[1][1] *= -1.0; // Flip Y for Vulkan's coordinate system
         proj = Mat4x4::transpose(&proj); // Transpose for column-major order
 
-
-        CameraUbo {
-            view : view.data,
-            proj : proj.data,
-        }
+        CameraUniform::new(view.data, proj.data)
     }
 }
