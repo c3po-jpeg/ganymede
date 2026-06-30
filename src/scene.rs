@@ -1,9 +1,8 @@
-use crate::{buffer::Buffer, camera::Camera, entity::Entity};
+use crate::{camera::Camera, entity::Entity};
 
 pub struct Scene {
     entities: Vec<Entity>,
     camera: Camera,
-    camera_buffer: Option<Buffer>,
 }
 
 impl Scene {
@@ -13,7 +12,6 @@ impl Scene {
         Self {
             entities: Vec::new(),
             camera,
-            camera_buffer: None,
         }
     }
 
@@ -27,7 +25,47 @@ impl Scene {
         self.entities.push(entity);
     }
 
-    pub fn update(&mut self, dt: f32, aspect_ratio: f32) {}
+    pub fn handle_keyboard(&mut self, key: winit::keyboard::KeyCode, pressed: bool) {
+        if !pressed {
+            self.camera.set_motion_still();
+            return; // Only handle key press, not release
+        }
+
+        match key {
+            winit::keyboard::KeyCode::KeyW => {
+                self.camera.set_motion_forwards();
+            }
+            winit::keyboard::KeyCode::KeyS => {
+                self.camera.set_motion_backwards();
+            }
+            winit::keyboard::KeyCode::KeyA => {
+                self.camera.set_motion_left();
+            }
+            winit::keyboard::KeyCode::KeyD => {
+                self.camera.set_motion_right();
+            }
+            winit::keyboard::KeyCode::Space => {
+                self.camera.set_motion_up();
+            }
+            winit::keyboard::KeyCode::ControlLeft | winit::keyboard::KeyCode::ControlRight => {
+                self.camera.set_motion_down();
+            }
+
+            _ => {}
+        }
+    }
+
+    pub fn get_camera(&self) -> &Camera {
+        &self.camera
+    }
+
+    pub fn rotate_camera(&mut self, yaw: f32, pitch: f32) {
+        self.camera.process_mouse(yaw, pitch);
+    }
+
+    pub fn update(&mut self, dt: f32) {
+        self.camera.process_keyboard(dt);
+    }
 
     pub fn render(&self, render_pass: &mut wgpu::RenderPass<'_>) -> anyhow::Result<()> {
         for entity in &self.entities {

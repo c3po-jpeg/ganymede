@@ -5,8 +5,8 @@ use math::{
 #[repr(C)]
 #[derive(Debug, Copy, Clone, bytemuck::Pod, bytemuck::Zeroable)]
 pub struct CameraUniform {
-    view: [[f32; 4]; 4],
-    proj: [[f32; 4]; 4],
+    pub view: [[f32; 4]; 4],
+    pub proj: [[f32; 4]; 4],
 }
 
 impl CameraUniform {

@@ -1,9 +1,9 @@
 mod app;
 mod buffer;
 mod camera;
-mod core;
 mod entity;
 mod geometry;
+mod renderer;
 mod scene;
 mod vertex;
 

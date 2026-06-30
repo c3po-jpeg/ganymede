@@ -1,13 +1,18 @@
-use std::sync::Arc;
+use std::{sync::Arc, time::Instant};
 
-use crate::{core::Core, scene::Scene};
-use winit::{application::ApplicationHandler, window::Window};
+use crate::{renderer::Renderer, scene::Scene};
+use winit::{
+    application::ApplicationHandler, event::ElementState, keyboard::PhysicalKey, window::Window,
+};
 
 #[derive(Default)]
 struct App {
     window: Option<Arc<Window>>,
-    core: Option<Core>,
+    renderer: Option<Renderer>,
     scene: Option<Scene>,
+    last_frame_time: Option<Instant>,
+    is_mouse_dragging: bool,
+    last_mouse_pos: (f64, f64),
 }
 
 impl App {
@@ -21,8 +26,8 @@ impl App {
 
 impl ApplicationHandler for App {
     fn resumed(&mut self, event_loop: &winit::event_loop::ActiveEventLoop) {
-        let win_width = 800;
-        let win_height = 600;
+        let win_width = 800u32;
+        let win_height = 600u32;
         let window = Arc::new(
             event_loop
                 .create_window(
@@ -34,12 +39,12 @@ impl ApplicationHandler for App {
         );
         self.window = Some(window.clone());
 
-        let mut core = pollster::block_on(Core::new(window.clone())).unwrap();
-        core.resize(win_width, win_height);
-        self.core = Some(core);
+        let mut renderer = pollster::block_on(Renderer::new(window.clone())).unwrap();
+        renderer.resize(win_width, win_height);
+        self.renderer = Some(renderer);
 
         if let Some(scene) = &mut self.scene {
-            scene.init(self.core.as_ref().unwrap().device());
+            scene.init(self.renderer.as_ref().unwrap().device());
         } else {
             println!("scene has not been set!");
         }
@@ -51,8 +56,8 @@ impl ApplicationHandler for App {
         window_id: winit::window::WindowId,
         event: winit::event::WindowEvent,
     ) {
-        let core = match &mut self.core {
-            Some(core) => core,
+        let renderer = match &mut self.renderer {
+            Some(renderer) => renderer,
             None => return,
         };
 
@@ -67,26 +72,50 @@ impl ApplicationHandler for App {
                 event_loop.exit();
             }
             winit::event::WindowEvent::RedrawRequested => {
-                //scene.add_entity(Entity::new(core.device(), Geometry::triangle(None)));
-                match core.render(|render_pass| scene.render(render_pass)) {
+                let now = std::time::Instant::now();
+                let dt = self
+                    .last_frame_time
+                    .map(|t| now.duration_since(t).as_secs_f32())
+                    .unwrap_or(1.0 / 60.0);
+                self.last_frame_time = Some(now);
+                scene.update(dt);
+
+                renderer.update_camera_buffer(scene.get_camera().get_ubo());
+                match renderer.run(|render_pass| scene.render(render_pass)) {
                     Ok(_) => {}
                     Err(e) => {
                         log::error!("{e}");
                         event_loop.exit();
                     }
                 }
-                // rendering code would go here
             }
-            winit::event::WindowEvent::KeyboardInput { .. } => {
-                // input handling code would go here
+            winit::event::WindowEvent::KeyboardInput { event, .. } => {
+                if let PhysicalKey::Code(code) = event.physical_key {
+                    scene.handle_keyboard(code, event.state == winit::event::ElementState::Pressed);
+                }
             }
 
-            winit::event::WindowEvent::MouseInput { .. } => {
-                // mouse input handling code would go here
+            winit::event::WindowEvent::MouseInput { state, button, .. } => {
+                if button == winit::event::MouseButton::Left {
+                    match state {
+                        ElementState::Pressed => self.is_mouse_dragging = true,
+                        ElementState::Released => self.is_mouse_dragging = false,
+                    }
+                }
+            }
+
+            winit::event::WindowEvent::CursorMoved { position, .. } => {
+                if self.is_mouse_dragging {
+                    let dx = (position.x - self.last_mouse_pos.0) as f32;
+                    let dy = (position.y - self.last_mouse_pos.1) as f32;
+
+                    scene.rotate_camera(dx, dy);
+                }
+                self.last_mouse_pos = (position.x, position.y);
             }
 
             winit::event::WindowEvent::Resized(size) => {
-                core.resize(size.width, size.height);
+                renderer.resize(size.width, size.height);
             }
             _ => {}
         }
