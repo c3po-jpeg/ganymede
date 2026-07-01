@@ -3,32 +3,32 @@ pub mod cube_sphere;
 pub mod torus;
 pub mod triangle;
 pub mod uv_sphere;
+pub mod vertex;
 
-use engine_core::vertex::Vertex;
+use vertex::Vertex;
 
 #[derive(Clone)]
 pub enum Shape {
     Cube {
-        size : f32,
+        size: f32,
         color: Option<[f32; 3]>,
     },
 
     UVSphere {
-        radius  : f32,
+        radius: f32,
         segments: u32,
-        rings   : u32,
-        color   : Option<[f32; 3]>,
+        rings: u32,
+        color: Option<[f32; 3]>,
     },
 
     CubeSphere {
-        radius      : f32,
+        radius: f32,
         subdivisions: u32,
-        color       : Option<[f32; 3]>
-    }
+        color: Option<[f32; 3]>,
+    },
     /*
-
     Torus { major_radius: f32, minor_radius: f32, major_segments: u32, minor_segments: u32, color: Option<[f32; 3]> },
-    , */
+       , */
 }
 
 impl Shape {
@@ -47,9 +47,8 @@ impl Shape {
             Shape::CubeSphere {
                 radius,
                 subdivisions,
-                color } => {
-                cube_sphere::generate_cube_sphere(*radius, *subdivisions, *color)
-            }
+                color,
+            } => cube_sphere::generate_cube_sphere(*radius, *subdivisions, *color),
         }
     }
 }
@@ -58,15 +57,19 @@ impl Shape {
 /// Represents mesh geometry with vertices and indices for GPU rendering.
 pub struct Geometry {
     vertices: Vec<Vertex>,
-    indices : Vec<u32>,
-    shape : Shape
+    indices: Vec<u32>,
+    shape: Shape,
 }
 
 impl Geometry {
     /// Creates geometry from a shape definition.
     pub fn new(shape: Shape) -> Self {
         let (vertices, indices) = shape.generate();
-        Self { vertices, indices, shape }
+        Self {
+            vertices,
+            indices,
+            shape,
+        }
     }
 
     /// Returns a slice of the vertices.

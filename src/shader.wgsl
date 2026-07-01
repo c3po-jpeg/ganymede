@@ -8,18 +8,22 @@ var<uniform> camera: CameraUniform;
 
 struct VertexInput {
     @location(0) pos: vec3<f32>,
-    @location(1) col: vec3<f32>,
+    @location(1) norm: vec3<f32>,
+    @location(2) uv: vec2<f32>,
+    @location(3) col: vec3<f32>,
 }
 
 struct VertexOutput {
     @builtin(position) pos: vec4<f32>,
     @location(0) col: vec3<f32>,
+    @location(1) norm: vec3<f32>,
 };
 
 @vertex
 fn vs_main(model: VertexInput) -> VertexOutput {
     var out: VertexOutput;
     out.col = model.col;
+    out.norm = model.norm;
     out.pos = camera.proj * camera.view * vec4<f32>(model.pos, 1.0);
     return out;
 }

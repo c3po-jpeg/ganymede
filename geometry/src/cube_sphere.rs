@@ -1,4 +1,4 @@
-use engine_core::vertex::Vertex;
+use crate::vertex::Vertex;
 
 pub fn generate_cube_sphere(
     radius: f32,

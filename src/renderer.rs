@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
-use super::vertex::Vertex;
 use anyhow::Ok;
+use geometry::vertex::Vertex;
 use math::mat4x4::Mat4x4;
 
 use crate::{buffer::Buffer, camera::CameraUniform};

@@ -911,12 +911,23 @@ dependencies = [
  "bytemuck",
  "egui",
  "egui-winit",
+ "geometry",
  "image",
  "log",
  "math",
  "pollster",
  "wgpu",
  "winit",
+]
+
+[[package]]
+name = "geometry"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "bytemuck",
+ "math",
+ "wgpu",
 ]
 
 [[package]]

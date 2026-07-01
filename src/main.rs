@@ -1,19 +1,22 @@
 mod app;
 mod buffer;
 mod camera;
+mod drawable;
 mod entity;
-mod geometry;
 mod renderer;
 mod scene;
-mod vertex;
 
 use entity::Entity;
-use geometry::Geometry;
 use scene::Scene;
+
+use geometry::{Geometry, Shape};
 
 fn main() -> anyhow::Result<()> {
     let mut scene = Scene::new();
-    scene.add_entity(Entity::new(Geometry::triangle(None)));
+    scene.add_entity(Entity::new(Geometry::new(Shape::Cube {
+        size: 1.0,
+        color: None,
+    })));
     app::run(scene)?;
     Ok(())
 }

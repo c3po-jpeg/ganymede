@@ -1,8 +1,9 @@
-use crate::geometry::{Geometry, GpuGeometry};
+use crate::drawable::Drawable;
+use geometry::Geometry;
 
 pub struct Entity {
     geometry: Geometry,
-    drawable: Option<GpuGeometry>,
+    drawable: Option<Drawable>,
 }
 
 impl Entity {
@@ -14,7 +15,7 @@ impl Entity {
     }
 
     pub fn init(&mut self, device: &wgpu::Device) {
-        self.drawable = Some(GpuGeometry::upload(device, &self.geometry));
+        self.drawable = Some(Drawable::upload(device, &self.geometry));
     }
 
     pub fn render(&self, render_pass: &mut wgpu::RenderPass<'_>) -> anyhow::Result<()> {

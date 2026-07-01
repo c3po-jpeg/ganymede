@@ -1,11 +1,8 @@
 [package]
-name = "geometry"
+name = "physics"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
 math = { path = "../math" }
 anyhow = "1.0.102"
-wgpu = "29.0.3"
-bytemuck = "1.25.0"
-

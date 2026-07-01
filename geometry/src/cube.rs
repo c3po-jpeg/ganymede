@@ -1,4 +1,4 @@
-use engine_core::vertex::Vertex;
+use crate::vertex::Vertex;
 
 pub fn generate_cube(size: f32, color: Option<[f32; 3]>) -> (Vec<Vertex>, Vec<u32>) {
     let half_size = size / 2.0;

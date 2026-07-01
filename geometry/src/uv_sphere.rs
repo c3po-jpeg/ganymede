@@ -1,4 +1,4 @@
-use engine_core::vertex::Vertex;
+use crate::vertex::Vertex;
 
 pub fn generate_uv_sphere(
     radius: f32,
